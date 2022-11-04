@@ -1,0 +1,380 @@
+---
+title: "Data cleaning"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(here)
+
+survey <- read.csv(here::here("Data", "survey_data_varnames.csv"))
+
+## Create a responseID
+
+survey <- survey %>% mutate(responseID_new = seq(1:nrow(survey)))
+
+## Exclude empty rows (non-consents, Democrats...)
+survey <- survey %>% filter(responseID_new > 5) #Previews by researcher
+survey <- survey %>% filter(treatment.path != "")
+survey <- survey %>% filter(aid != "testWorker")
+
+## Remove unneeded variables
+
+survey <- survey %>% select(13:90)
+```
+
+
+Converting text categories to numeric
+
+```{r}
+
+## Ideology
+
+survey <- survey %>% mutate(ideology = ifelse(ideology == "Extremely liberal", -3, 
+                                              ifelse(ideology == "Liberal", -2, 
+                                                     ifelse(ideology == "Slightly liberal", -1,
+                                                      ifelse(ideology == "Moderate", 0, 
+                                                      ifelse(ideology == "Slightly conservative", 1, 
+                                                      ifelse(ideology == "Conservative", 2, 
+                                                      ifelse(ideology == "Extremely conservative", 3, NA))))))))
+
+## Correct answer on current House majority
+
+survey <- survey %>% mutate(correct_know_housemaj = ifelse(know_housemaj == "Democrats", 1, 0))
+
+## Pre-treatment election integrity assessments
+
+survey <- survey %>% mutate(votecount_fair = ifelse(votecount_fair == "Not at all", 0, 
+                                                    ifelse(votecount_fair == "Fairly often", 1, 
+                                                           ifelse(votecount_fair == "Very often", 2, NA))))
+survey <- survey %>% mutate(officials_fair = ifelse(officials_fair == "Not at all", 0, 
+                                                    ifelse(officials_fair == "Fairly often", 1, 
+                                                           ifelse(officials_fair == "Very often", 2, NA))))
+survey <- survey %>% mutate(voters_choice = ifelse(voters_choice == "Not at all", 0, 
+                                                    ifelse(voters_choice == "Fairly often", 1, 
+                                                           ifelse(voters_choice == "Very often", 2, NA))))
+
+## Opinion of Biden and Trump
+
+survey <- survey %>% mutate(opinion_biden = ifelse(opinion_biden == "Extremely negative", -2,
+                                                   ifelse(opinion_biden == "Somewhat negative", -1,
+                                                    ifelse(opinion_biden == "Neither positive nor negative", 0,
+                                                    ifelse(opinion_biden == "Somewhat positive", 1,
+                                                    ifelse(opinion_biden == "Extremely positive", 2, NA))))))
+
+
+survey <- survey %>% mutate(opinion_trump = ifelse(opinion_trump == "Extremely negative", -2,
+                                                   ifelse(opinion_trump == "Somewhat negative", -1,
+                                                    ifelse(opinion_trump == "Neither positive nor negative", 0,
+                                                    ifelse(opinion_trump == "Somewhat positive", 1,
+                                                    ifelse(opinion_trump == "Extremely positive", 2, NA))))))
+
+## Trust Democrats and Republicans to do the right thing
+
+survey <- survey %>% mutate(trust_dems = ifelse(trust_dems == "Almost never", -2, 
+                                                ifelse(trust_dems == "Once in a while", -1,
+                                                ifelse(trust_dems == "About half the time", 0,
+                                                ifelse(trust_dems == "Most of the time", 1,
+                                                ifelse(trust_dems == "Almost always", 2, NA))))))
+
+survey <- survey %>% mutate(trust_reps = ifelse(trust_reps == "Almost never", -2, 
+                                                ifelse(trust_reps == "Once in a while", -1,
+                                                ifelse(trust_reps == "About half the time", 0,
+                                                ifelse(trust_reps == "Most of the time", 1,
+                                                ifelse(trust_reps == "Almost always", 2, NA))))))
+
+## Partisan affective polarization
+
+survey <- survey %>% mutate(dem_friend = ifelse(dem_friend == "Not at all comfortable", 3,
+                                                ifelse(dem_friend == "Not too comfortable", 2,
+                                                ifelse(dem_friend == "Somewhat comfortable", 1,
+                                                ifelse(dem_friend == "Extremely comfortable", 0, NA)))))
+
+survey <- survey %>% mutate(dem_neighbor = ifelse(dem_neighbor == "Not at all comfortable", 3,
+                                                ifelse(dem_neighbor == "Not too comfortable", 2,
+                                                ifelse(dem_neighbor == "Somewhat comfortable", 1,
+                                                ifelse(dem_neighbor == "Extremely comfortable", 0, NA)))))
+
+survey <- survey %>% mutate(dem_marry = ifelse(dem_marry == "Not at all upset", 0,
+                                                ifelse(dem_marry == "Not too upset", 1,
+                                                ifelse(dem_marry == "Somewhat upset", 2,
+                                                ifelse(dem_marry == "Extremely upset", 3, NA)))))
+
+## Efficacy
+
+survey <- survey %>% mutate(rep_stand_rights = ifelse(rep_stand_rights == "None at all", 0,
+                                                ifelse(rep_stand_rights == "A little", 1,
+                                                  ifelse(rep_stand_rights == "A moderate amount", 2,
+                                                    ifelse(rep_stand_rights == "A lot", 3,
+                                                      ifelse(rep_stand_rights == "A great deal", 4, NA))))))
+
+survey <- survey %>% mutate(rep_change = ifelse(rep_change == "None at all", 0,
+                                                ifelse(rep_change == "A little", 1,
+                                                  ifelse(rep_change == "A moderate amount", 2,
+                                                    ifelse(rep_change == "A lot", 3,
+                                                      ifelse(rep_change == "A great deal", 4, NA))))))
+
+survey <- survey %>% mutate(rep_influence = ifelse(rep_influence == "None at all", 0,
+                                                ifelse(rep_influence == "A little", 1,
+                                                  ifelse(rep_influence == "A moderate amount", 2,
+                                                    ifelse(rep_influence == "A lot", 3,
+                                                      ifelse(rep_influence == "A great deal", 4, NA))))))
+
+    ### Independents ###
+
+survey <- survey %>% mutate(rep_stand_indy = ifelse(rep_stand_indy == "None at all", 0,
+                                                ifelse(rep_stand_indy == "A little", 1,
+                                                  ifelse(rep_stand_indy == "A moderate amount", 2,
+                                                    ifelse(rep_stand_indy == "A lot", 3,
+                                                      ifelse(rep_stand_indy == "A great deal", 4, NA))))))
+
+survey <- survey %>% mutate(rep_change_indy = ifelse(rep_change_indy == "None at all", 0,
+                                                ifelse(rep_change_indy == "A little", 1,
+                                                  ifelse(rep_change_indy == "A moderate amount", 2,
+                                                    ifelse(rep_change_indy == "A lot", 3,
+                                                      ifelse(rep_change_indy == "A great deal", 4, NA))))))
+
+survey <- survey %>% mutate(rep_influence_indy = ifelse(rep_influence_indy == "None at all", 0,
+                                                ifelse(rep_influence_indy == "A little", 1,
+                                                  ifelse(rep_influence_indy == "A moderate amount", 2,
+                                                    ifelse(rep_influence_indy == "A lot", 3,
+                                                      ifelse(rep_influence_indy == "A great deal", 4, NA))))))
+
+
+## Identity
+
+survey <- survey %>% mutate(self_rep = ifelse(self_rep == "A great deal", 4,
+                                               ifelse(self_rep == "A lot", 3,
+                                                ifelse(self_rep == "A moderate amount", 2,
+                                                  ifelse(self_rep == "A little", 1,
+                                                         ifelse(self_rep == "None at all", 0, NA))))))
+
+survey <- survey %>% mutate(desc_rep = ifelse(desc_rep == "Extremely well", 4,
+                                               ifelse(desc_rep == "Very well", 3,
+                                                ifelse(desc_rep == "Moderately well", 2,
+                                                  ifelse(desc_rep == "Slightly well", 1,
+                                                         ifelse(desc_rep == "Not well at all", 0, NA))))))
+
+survey <- survey %>% mutate(we_rep = ifelse(we_rep == "Always", 4,
+                                               ifelse(we_rep == "Most of the time", 3,
+                                                ifelse(we_rep == "About half the time", 2,
+                                                  ifelse(we_rep == "Sometimes", 1,
+                                                         ifelse(we_rep == "Never", 0, NA))))))
+
+survey <- survey %>% mutate(important_rep = ifelse(important_rep == "Extremely important", 4,
+                                               ifelse(important_rep == "Very important", 3,
+                                                ifelse(important_rep == "Moderately important", 2,
+                                                  ifelse(important_rep == "Slightly important", 1,
+                                                         ifelse(important_rep == "Not at all important", 0, NA))))))
+
+
+
+## Economics and finances
+
+survey <- survey %>% mutate(econ_state = ifelse(econ_state == "Very bad", -2,
+                                          ifelse(econ_state == "Bad", -1,
+                                            ifelse(econ_state == "Neither good nor bad", 0,
+                                              ifelse(econ_state == "Good", 1, 
+                                                ifelse(econ_state == "Very good", 2, NA))))))
+
+
+survey <- survey %>% mutate(econ_future = ifelse(econ_future == "Get worse", -1,
+                                            ifelse(econ_future == "Stay about the same", 0,
+                                                   ifelse(econ_future == "Get better", 1, NA))))
+
+survey <- survey %>% mutate(econ_family = ifelse(econ_family == "Not satisfied at all", -1,
+                                            ifelse(econ_family == "More or less satisfied", 0,
+                                                   ifelse(econ_family == "Pretty well satisfied", 1, NA))))
+
+
+survey <- survey %>% mutate(econ_family_future = ifelse(econ_family_future == "Much worse off", -2,
+                                          ifelse(econ_family_future == "Somewhat worse off", -1,
+                                            ifelse(econ_family_future == "About the same", 0,
+                                              ifelse(econ_family_future == "Somewhat better off", 1, 
+                                                ifelse(econ_family_future == "Much better off", 2, NA))))))
+
+ ## System justification
+
+survey <- survey %>% mutate(society_fair = ifelse(society_fair == "Strongly disagree", -2,
+                                            ifelse(society_fair == "Somewhat disagree", -1, 
+                                              ifelse(society_fair == "Neither agree nor disagree", 0,
+                                                ifelse(society_fair == "Somewhat agree", 1, 
+                                                       ifelse(society_fair == "Strongly agree", 2, NA))))))
+
+survey <- survey %>% mutate(polsystem_good = ifelse(polsystem_good == "Strongly disagree", -2,
+                                            ifelse(polsystem_good == "Somewhat disagree", -1, 
+                                              ifelse(polsystem_good == "Neither agree nor disagree", 0,
+                                                ifelse(polsystem_good == "Somewhat agree", 1, 
+                                                       ifelse(polsystem_good == "Strongly agree", 2, NA))))))
+
+survey <- survey %>% mutate(fair_shot = ifelse(fair_shot == "Strongly disagree", -2,
+                                            ifelse(fair_shot == "Somewhat disagree", -1, 
+                                              ifelse(fair_shot == "Neither agree nor disagree", 0,
+                                                ifelse(fair_shot == "Somewhat agree", 1, 
+                                                       ifelse(fair_shot == "Strongly agree", 2, NA))))))
+
+survey <- survey %>% mutate(society_deserve = ifelse(society_deserve == "Strongly disagree", -2,
+                                            ifelse(society_deserve == "Somewhat disagree", -1, 
+                                              ifelse(society_deserve == "Neither agree nor disagree", 0,
+                                                ifelse(society_deserve == "Somewhat agree", 1, 
+                                                       ifelse(society_deserve == "Strongly agree", 2, NA))))))
+
+ ## Trust institutions
+
+survey <- survey %>% mutate(trust_pres = ifelse(trust_pres == "Almost never", 0,
+                                                ifelse(trust_pres == "Some of the time", 1,
+                                                  ifelse(trust_pres == "Most of the time", 2,
+                                                    ifelse(trust_pres == "Almost always", 3, NA)))))
+
+survey <- survey %>% mutate(trust_congress = ifelse(trust_congress == "Almost never", 0,
+                                                ifelse(trust_congress == "Some of the time", 1,
+                                                  ifelse(trust_congress == "Most of the time", 2,
+                                                    ifelse(trust_congress == "Almost always", 3, NA)))))
+
+survey <- survey %>% mutate(trust_courts = ifelse(trust_courts == "Almost never", 0,
+                                                ifelse(trust_courts == "Some of the time", 1,
+                                                  ifelse(trust_courts == "Most of the time", 2,
+                                                    ifelse(trust_courts == "Almost always", 3, NA)))))
+
+survey <- survey %>% mutate(trust_police = ifelse(trust_police == "Almost never", 0,
+                                                ifelse(trust_police == "Some of the time", 1,
+                                                  ifelse(trust_police == "Most of the time", 2,
+                                                    ifelse(trust_police == "Almost always", 3, NA)))))
+
+survey <- survey %>% mutate(trust_media = ifelse(trust_media == "Almost never", 0,
+                                                ifelse(trust_media == "Some of the time", 1,
+                                                  ifelse(trust_media == "Most of the time", 2,
+                                                    ifelse(trust_media == "Almost always", 3, NA)))))
+
+
+ ## Election prediction
+
+survey <- survey %>% mutate(election_predict = ifelse(election_predict == "Democrats are very likely to win", -2,
+                                                ifelse(election_predict == "Democrats are somewhat likely to win", -1,
+                                                    ifelse(election_predict == "The election is too close to predict", 0,
+                                                  ifelse(election_predict == "Republicans are somewhat likely to win", 1,
+                                                    ifelse(election_predict == "Republicans are very likely to win", 2, NA))))))
+
+
+  ## Emotions
+
+survey <- survey %>% mutate(disgust = ifelse(disgust == "Not at all", 0,
+                                        ifelse(disgust == "A little", 1,
+                                        ifelse(disgust == "Moderately", 2, 
+                                            ifelse(disgust == "Very much", 3, NA)))))
+
+survey <- survey %>% mutate(pride = ifelse(pride == "Not at all", 0,
+                                        ifelse(pride == "A little", 1,
+                                        ifelse(pride == "Moderately", 2, 
+                                            ifelse(pride == "Very much", 3, NA)))))
+
+survey <- survey %>% mutate(outrage = ifelse(outrage == "Not at all", 0,
+                                        ifelse(outrage == "A little", 1,
+                                        ifelse(outrage == "Moderately", 2, 
+                                            ifelse(outrage == "Very much", 3, NA)))))
+
+survey <- survey %>% mutate(nervous = ifelse(nervous == "Not at all", 0,
+                                        ifelse(nervous == "A little", 1,
+                                        ifelse(nervous == "Moderately", 2, 
+                                            ifelse(nervous == "Very much", 3, NA)))))
+
+survey <- survey %>% mutate(anger = ifelse(anger == "Not at all", 0,
+                                        ifelse(anger == "A little", 1,
+                                        ifelse(anger == "Moderately", 2, 
+                                            ifelse(anger == "Very much", 3, NA)))))
+
+survey <- survey %>% mutate(fear = ifelse(fear == "Not at all", 0,
+                                        ifelse(fear == "A little", 1,
+                                        ifelse(fear == "Moderately", 2, 
+                                            ifelse(fear == "Very much", 3, NA)))))
+
+survey <- survey %>% mutate(hope = ifelse(hope == "Not at all", 0,
+                                        ifelse(hope == "A little", 1,
+                                        ifelse(hope == "Moderately", 2, 
+                                            ifelse(hope == "Very much", 3, NA)))))
+
+survey <- survey %>% mutate(happy = ifelse(happy == "Not at all", 0,
+                                        ifelse(happy == "A little", 1,
+                                        ifelse(happy == "Moderately", 2, 
+                                            ifelse(happy == "Very much", 3, NA)))))
+
+ ## Overall feeling
+
+survey <- survey %>% mutate(feel_overall = ifelse(feel_overall == "Extremely negative", -2,
+                                        ifelse(feel_overall == "Somewhat negative", -1,
+                                        ifelse(feel_overall == "Neither positive nor negative", 0, 
+                                          ifelse(feel_overall == "Somewhat positive", 1, 
+                                            ifelse(feel_overall == "Extremely positive", 2, NA))))))
+
+ ## Collective action
+
+survey <- survey %>% mutate(demonstration = ifelse(demonstration == "Extremely unlikely", -2,
+                                        ifelse(demonstration == "Somewhat unlikely", -1,
+                                        ifelse(demonstration == "Neither likely nor unlikely", 0, 
+                                          ifelse(demonstration == "Somewhat likely", 1, 
+                                            ifelse(demonstration == "Extremely likely", 2, NA))))))
+
+
+survey <- survey %>% mutate(petition = ifelse(petition == "Extremely unlikely", -2,
+                                        ifelse(petition == "Somewhat unlikely", -1,
+                                        ifelse(petition == "Neither likely nor unlikely", 0, 
+                                          ifelse(petition == "Somewhat likely", 1, 
+                                            ifelse(petition == "Extremely likely", 2, NA))))))
+
+
+
+survey <- survey %>% mutate(donate = ifelse(donate == "Extremely unlikely", -2,
+                                        ifelse(donate == "Somewhat unlikely", -1,
+                                        ifelse(donate == "Neither likely nor unlikely", 0, 
+                                          ifelse(donate == "Somewhat likely", 1, 
+                                            ifelse(donate == "Extremely likely", 2, NA))))))
+
+
+
+survey <- survey %>% mutate(do_something = ifelse(do_something == "Extremely unlikely", -2,
+                                        ifelse(do_something == "Somewhat unlikely", -1,
+                                        ifelse(do_something == "Neither likely nor unlikely", 0, 
+                                          ifelse(do_something == "Somewhat likely", 1, 
+                                            ifelse(do_something == "Extremely likely", 2, NA))))))
+
+
+```
+
+
+Manipulating variables
+
+```{r}
+ ## Self efficacy
+
+survey <- survey %>% mutate(self_efficacy_index = achieve_goals + accomplish_tasks + confidence_tasks + perform_tough)
+
+ ## System justification
+
+survey <- survey %>% mutate(system_just_index = society_fair + polsystem_good + fair_shot + society_deserve)
+
+
+ ## Partisan polarization
+
+survey <- survey %>% mutate(polar_therm = therm_reps - therm_dems)
+
+survey <- survey %>% mutate(polar_index = dem_friend + dem_neighbor + dem_marry)
+
+
+ ## Group identity
+
+survey <- survey %>% mutate(group_id_index = self_rep + desc_rep + we_rep + important_rep)
+
+ ## Election integrity beliefs
+
+survey <- survey %>% mutate(ei_pre_index = votecount_fair + voters_choice + officials_fair)
+
+```
+
+
+
+Saving
+
+```{r}
+write.csv(survey, here::here("Data", "survey_data_clean.csv"))
+```
+
