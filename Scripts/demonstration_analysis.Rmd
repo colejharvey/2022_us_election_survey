@@ -213,6 +213,121 @@ ggplot(lnewdat, aes(x = group_id_index, y = Probability, colour = Level)) +
 
 ```
 
+H10
+
+```{r}
+h10.m1 <- polr(as.factor(demonstration) ~ treatment.path + econ_state + treatment.path*econ_state + news_outlet_rating, data = survey, Hess=TRUE)
+
+## view a summary of the model
+summary(h10.m1)
+
+## Plot interaction
+
+newdat <- data.frame(
+  news_outlet_rating = 7,
+  econ_state = rep(seq(from = -1, to =1, by = 1), times = 3),
+  treatment.path = c(rep("control", times = 3), rep("treated.laws", times = 3), rep("treated.fraud", times = 3))
+)
+
+
+newdat <- cbind(newdat, predict(h10.m1, newdat, type = "probs"))
+
+
+lnewdat <- reshape2::melt(newdat, id.vars = c("econ_state", "treatment.path", "news_outlet_rating"),
+  variable.name = "Level", value.name="Probability")
+## view first few rows
+head(lnewdat)
+
+ggplot(lnewdat, aes(x = econ_state, y = Probability, colour = Level)) +
+  geom_line() + facet_wrap(facets = "treatment.path")
+
+
+ ## Index with future
+
+h10.m2 <- polr(as.factor(demonstration) ~ treatment.path + econ_natl_index + treatment.path*econ_natl_index + news_outlet_rating, data = survey, Hess=TRUE)
+
+## view a summary of the model
+summary(h10.m2)
+
+## Plot interaction
+
+newdat <- data.frame(
+  news_outlet_rating = 7,
+  econ_natl_index = rep(seq(from = -2, to = 2, by = 1), times = 3),
+  treatment.path = c(rep("control", times = 5), rep("treated.laws", times = 5), rep("treated.fraud", times = 5))
+)
+
+
+newdat <- cbind(newdat, predict(h10.m2, newdat, type = "probs"))
+
+
+lnewdat <- reshape2::melt(newdat, id.vars = c("econ_natl_index", "treatment.path", "news_outlet_rating"),
+  variable.name = "Level", value.name="Probability")
+## view first few rows
+head(lnewdat)
+
+ggplot(lnewdat, aes(x = econ_natl_index, y = Probability, colour = Level)) +
+  geom_line() + facet_wrap(facets = "treatment.path")
+```
+
+H11
+
+```{r}
+h11.m1 <- polr(as.factor(demonstration) ~ treatment.path + econ_family + treatment.path*econ_family + news_outlet_rating, data = survey, Hess=TRUE)
+
+## view a summary of the model
+summary(h11.m1)
+
+## Plot interaction
+
+newdat <- data.frame(
+  news_outlet_rating = 7,
+  econ_family = rep(seq(from = -1, to =1, by = 1), times = 3),
+  treatment.path = c(rep("control", times = 3), rep("treated.laws", times = 3), rep("treated.fraud", times = 3))
+)
+
+
+newdat <- cbind(newdat, predict(h11.m1, newdat, type = "probs"))
+
+
+lnewdat <- reshape2::melt(newdat, id.vars = c("econ_family", "treatment.path", "news_outlet_rating"),
+  variable.name = "Level", value.name="Probability")
+## view first few rows
+head(lnewdat)
+
+ggplot(lnewdat, aes(x = econ_family, y = Probability, colour = Level)) +
+  geom_line() + facet_wrap(facets = "treatment.path")
+
+ ## Index with future ##
+
+
+h11.m2 <- polr(as.factor(demonstration) ~ treatment.path + econ_family_index + treatment.path*econ_family_index + news_outlet_rating, data = survey, Hess=TRUE)
+
+## view a summary of the model
+summary(h11.m2)
+
+## Plot interaction
+
+newdat <- data.frame(
+  news_outlet_rating = 7,
+  econ_family_index = rep(seq(from = -2, to = 2, by = 1), times = 3),
+  treatment.path = c(rep("control", times = 5), rep("treated.laws", times = 5), rep("treated.fraud", times = 5))
+)
+
+
+newdat <- cbind(newdat, predict(h11.m2, newdat, type = "probs"))
+
+
+lnewdat <- reshape2::melt(newdat, id.vars = c("econ_family_index", "treatment.path", "news_outlet_rating"),
+  variable.name = "Level", value.name="Probability")
+## view first few rows
+head(lnewdat)
+
+ggplot(lnewdat, aes(x = econ_family_index, y = Probability, colour = Level)) +
+  geom_line() + facet_wrap(facets = "treatment.path")
+```
+
+
 H12
 
 ```{r}

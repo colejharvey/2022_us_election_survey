@@ -1,0 +1,188 @@
+---
+title: "Collective action analysis"
+output: html_notebook
+---
+
+
+
+```{r setup}
+library(tidyverse)
+library(here)
+library(MASS)
+library(sjPlot)
+
+survey <- read.csv(here("Data", "survey_data_clean.csv"))
+
+
+ ## DV  ##
+
+survey <- survey %>% mutate(ca_index = (demonstration + petition + donate + do_something)/4)
+survey <- survey %>% mutate(ca_index = scale(ca_index))
+```
+
+
+H2
+```{r}
+
+h2.m1 <- lm(ca_index ~ treatment.path + news_outlet_rating, data = survey)
+
+summary(h2.m1)
+
+```
+
+H3
+
+```{r}
+h3.m1 <- lm(ca_index ~ treatment.path + self_efficacy_index + treatment.path*self_efficacy_index + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h3.m1)
+
+plot_model(h3.m1, type = "pred", terms = c("self_efficacy_index", "treatment.path"))
+```
+
+
+H6
+
+```{r}
+h6.m1 <- lm(ca_index ~ treatment.path + system_just_index + treatment.path*system_just_index + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h6.m1)
+
+plot_model(h6.m1, type = "pred", terms = c("system_just_index", "treatment.path"))
+
+```
+
+
+
+H7
+
+```{r}
+h7.m1 <- lm(ca_index ~ treatment.path + satisfied_democracy + treatment.path*satisfied_democracy + news_outlet_rating, data = survey, Hess=TRUE)
+
+## view a summary of the model
+summary(h7.m1)
+
+plot_model(h7.m1, type = "pred", terms = c("satisfied_democracy", "treatment.path"))
+
+```
+
+
+
+
+H8
+
+```{r}
+h8.m1 <- lm(ca_index ~ treatment.path + polar_therm + treatment.path*polar_therm + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h8.m1)
+
+## Plot interaction
+plot_model(h8.m1, type = "pred", terms = c("polar_therm", "treatment.path"))
+
+
+h8.m2 <- lm(ca_index ~ treatment.path + polar_index + treatment.path*polar_index + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h8.m2)
+
+## Plot interaction
+plot_model(h8.m2, type = "pred", terms = c("polar_index", "treatment.path [control, treated.fraud]"))
+
+```
+^ Think about what this means: does it mean "moderates" join committed partisans? Does it mean that less polarization is good for democracies?
+
+
+H9
+
+
+```{r}
+h9.m1 <- lm(ca_index ~ treatment.path + group_id_index + treatment.path*group_id_index + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h9.m1)
+
+## Plot interaction
+plot_model(h9.m1, type = "pred", terms = c("group_id_index", "treatment.path [control, treated.fraud]"))
+
+```
+
+H10
+
+```{r}
+h10.m1 <- lm(ca_index ~ treatment.path + econ_state + treatment.path*econ_state + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h10.m1)
+
+## Plot interaction
+plot_model(h10.m1, type = "pred", terms = c("econ_state", "treatment.path"))
+
+ ## Index ## 
+
+h10.m2 <- lm(ca_index ~ treatment.path + econ_natl_index + treatment.path*econ_natl_index + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h10.m2)
+
+plot_model(h10.m2, type = "pred", terms = c("econ_natl_index", "treatment.path"))
+
+```
+
+
+H11
+
+```{r}
+h11.m1 <- lm(ca_index ~ treatment.path + econ_family + treatment.path*econ_family + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h11.m1)
+
+## Plot interaction
+plot_model(h11.m1, type = "pred", terms = c("econ_family", "treatment.path"))
+
+ ## Index
+
+h11.m2 <- lm(ca_index ~ treatment.path + econ_family_index + treatment.path*econ_family_index + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h11.m2)
+
+## Plot interaction
+plot_model(h11.m2, type = "pred", terms = c("econ_family_index", "treatment.path"))
+
+```
+
+
+H12
+
+```{r}
+h12.m1 <- lm(ca_index ~ treatment.path + trust_courts + treatment.path*trust_courts + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h12.m1)
+
+## Plot interaction
+plot_model(h12.m1, type = "pred", terms = c("trust_courts", "treatment.path"))
+
+```
+
+H13
+```{r}
+h13.m1 <- lm(ca_index ~ treatment.path + election_predict + treatment.path*election_predict + news_outlet_rating, data = survey)
+
+## view a summary of the model
+summary(h13.m1)
+
+## Plot interaction
+plot_model(h13.m1, type = "pred", terms = c("election_predict", "treatment.path"))
+
+```
+
+
+
+
+
+

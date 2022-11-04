@@ -19,8 +19,7 @@ survey <- survey %>% filter(treatment.path != "")
 survey <- survey %>% filter(aid != "testWorker")
 
 ## Remove unneeded variables
-
-survey <- survey %>% select(13:90)
+survey <- survey %>% dplyr::select(13:90)
 ```
 
 
@@ -367,6 +366,13 @@ survey <- survey %>% mutate(group_id_index = self_rep + desc_rep + we_rep + impo
  ## Election integrity beliefs
 
 survey <- survey %>% mutate(ei_pre_index = votecount_fair + voters_choice + officials_fair)
+
+
+ ## Econ indices
+
+survey <- survey %>% mutate(econ_natl_index = econ_state + econ_future)
+survey <- survey %>% mutate(econ_family_index = econ_family + econ_family_future)
+
 
 ```
 
