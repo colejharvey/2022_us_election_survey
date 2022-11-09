@@ -21,6 +21,7 @@ survey <- survey %>% mutate(ca_index = scale(ca_index))
 ```
 
 
+
 H2
 ```{r}
 
@@ -40,8 +41,18 @@ summary(h3.m1)
 
 plot_model(h3.m1, type = "pred", terms = c("self_efficacy_index", "treatment.path"))
 ```
+H5
 
+```{r}
+h5.m1 <- lm(ca_index ~ treatment.path + group_efficacy + treatment.path*group_efficacy + news_outlet_rating, data = survey)
 
+## view a summary of the model
+summary(h5.m1)
+
+plot_model(h5.m1, type = "pred", terms = c("group_efficacy", "treatment.path [treated.fraud, control]"))
+```
+
+ 
 H6
 
 ```{r}

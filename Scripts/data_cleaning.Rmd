@@ -373,6 +373,9 @@ survey <- survey %>% mutate(ei_pre_index = votecount_fair + voters_choice + offi
 survey <- survey %>% mutate(econ_natl_index = econ_state + econ_future)
 survey <- survey %>% mutate(econ_family_index = econ_family + econ_family_future)
 
+ ## Group efficacy
+
+survey <- survey %>% mutate(group_efficacy = ifelse(party_id == "Independent", (rep_stand_indy + rep_change_indy + rep_influence_indy), rep_stand_rights + rep_change + rep_influence))
 
 ```
 

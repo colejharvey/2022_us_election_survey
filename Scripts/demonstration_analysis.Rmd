@@ -63,6 +63,35 @@ ggplot(lnewdat, aes(x = self_efficacy_index, y = Probability, colour = Level)) +
   geom_line() + facet_wrap(facets = "treatment.path")
 ```
 
+
+H5
+
+```{r}
+h5.m1 <- polr(as.factor(demonstration) ~ treatment.path + group_efficacy + treatment.path*group_efficacy + news_outlet_rating, data = survey, Hess = T)
+
+## view a summary of the model
+summary(h5.m1)
+
+newdat <- data.frame(
+  group_efficacy = rep(seq(from = 0, to = 12, by = 1), times = 3),
+  news_outlet_rating = 7,
+  treatment.path = c(rep("control", times = 13), rep("treated.laws", times = 13), rep("treated.fraud", times = 13))
+)
+
+
+newdat <- cbind(newdat, predict(h5.m1, newdat, type = "probs"))
+
+
+lnewdat <- reshape2::melt(newdat, id.vars = c("group_efficacy", "treatment.path", "news_outlet_rating"),
+  variable.name = "Level", value.name="Probability")
+## view first few rows
+head(lnewdat)
+
+ggplot(lnewdat, aes(x = group_efficacy, y = Probability, colour = Level)) +
+  geom_line() + facet_wrap(facets = "treatment.path")
+```
+
+
 H6
 
 ```{r}
